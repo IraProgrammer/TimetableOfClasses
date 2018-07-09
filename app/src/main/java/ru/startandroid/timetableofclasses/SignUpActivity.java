@@ -23,7 +23,7 @@ import ru.startandroid.timetableofclasses.ForGSON.StatusForSignUp;
 
 import static android.R.attr.name;
 
-public class SignUpActivity extends Activity implements TextWatcher{
+public class SignUpActivity extends Activity implements TextWatcher {
 
     EditText name;
     EditText login;
@@ -57,62 +57,42 @@ public class SignUpActivity extends Activity implements TextWatcher{
     }
 
     public void onTextChanged(CharSequence a, int b, int c, int d) {
-        if     (!name.getText().toString().isEmpty() &&
+        if (!name.getText().toString().isEmpty() &&
                 !login.getText().toString().isEmpty() &&
                 !password.getText().toString().isEmpty() &&
                 !passagain.getText().toString().isEmpty() &&
                 !request.getText().toString().isEmpty()) {
             send.setEnabled(true);
-        }
-        else send.setEnabled(false);
+        } else send.setEnabled(false);
     }
 
-        public void afterTextChanged(Editable s) {
+    public void afterTextChanged(Editable s) {
 
-        }
-
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-        }
-
-   public void onClickSend(View v){
-       String status = "";
-       if (teacher.isChecked()) {
-           status = "Преподаватель";
-       }
-       else
-    {
-        status = "Админ";
     }
+
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    public void onClickSend(View v) {
+        String status = "";
+        if (teacher.isChecked()) {
+            status = "Преподаватель";
+        } else {
+            status = "Админ";
+        }
 
         if (!password.getText().toString().equals(passagain.getText().toString())) {
             Toast.makeText(this, R.string.difPass, Toast.LENGTH_LONG).show();
-        }
-
-        else if (password.getText().length() < 8) {
-           Toast.makeText(this, R.string.minPass, Toast.LENGTH_LONG).show();
-       }
-
-       else {
+        } else if (password.getText().length() < 8) {
+            Toast.makeText(this, R.string.minPass, Toast.LENGTH_LONG).show();
+        } else {
 
             SignUp signup = new SignUp(request.getText().toString(), status,
                     name.getText().toString(), login.getText().toString(), password.getText().toString());
-            String json = new Gson().toJson(signup);
 
-
-            App.getApi().postStatusForSignUp(json).enqueue(new Callback<StatusForSignUp>() {
-
-                @Override
-                public void onResponse(Call<StatusForSignUp> call, Response<StatusForSignUp> response) {
-                    StatusForSignUp statusForSignUp = response.body();
-                    Toast.makeText(SignUpActivity.this, statusForSignUp.getMore(), Toast.LENGTH_LONG).show();
-                }
-
-                @Override
-                public void onFailure(Call<StatusForSignUp> call, Throwable t) {
-                    Toast.makeText(SignUpActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
-                }
-            });
+            String statusForSignUpStr = App.getNetworkManager().postStatusForSignUp(signup);
+            Toast.makeText(this, statusForSignUpStr, Toast.LENGTH_LONG).show();
         }
     }
 }

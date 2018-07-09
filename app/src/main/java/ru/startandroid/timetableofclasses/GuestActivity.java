@@ -20,8 +20,6 @@ import retrofit2.Response;
 import ru.startandroid.timetableofclasses.ForGSON.RequestsForAdmin;
 import ru.startandroid.timetableofclasses.ForGSON.TeachersList;
 
-import static ru.startandroid.timetableofclasses.SignUpActivity.url;
-
 public class GuestActivity extends Activity {
 
     Intent intentL;
@@ -33,19 +31,7 @@ public class GuestActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_guest);
 
-        App.getApi().getTeachers().enqueue(new Callback<TeachersList>() {
-
-            @Override
-            public void onResponse(Call<TeachersList> call, Response<TeachersList> response) {
-                TeachersList tl = response.body();
-                names = tl.getTeachers();
-            }
-
-            @Override
-            public void onFailure(Call<TeachersList> call, Throwable t) {
-                Toast.makeText(GuestActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
-            }
-        });
+        names = App.getNetworkManager().getTeachers();
 
         intentL = new Intent(this, DateActivity.class);
 

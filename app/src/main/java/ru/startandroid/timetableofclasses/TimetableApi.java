@@ -1,6 +1,7 @@
 package ru.startandroid.timetableofclasses;
 
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -8,6 +9,8 @@ import retrofit2.http.Query;
 import ru.startandroid.timetableofclasses.ForGSON.AnswerForAdmin;
 import ru.startandroid.timetableofclasses.ForGSON.Lessons;
 import ru.startandroid.timetableofclasses.ForGSON.RequestsForAdmin;
+import ru.startandroid.timetableofclasses.ForGSON.SignIn;
+import ru.startandroid.timetableofclasses.ForGSON.SignUp;
 import ru.startandroid.timetableofclasses.ForGSON.Status;
 import ru.startandroid.timetableofclasses.ForGSON.StatusForSignUp;
 import ru.startandroid.timetableofclasses.ForGSON.TeachersList;
@@ -28,8 +31,8 @@ public interface TimetableApi {
     Call<Lessons> getLessons(@Query("q") String key);
 
     @PUT("/login")
-    Call<Status> putStatus(String json);
+    Call<Status> putStatus(@Body SignIn signIn);
 
     @POST("/accounts/unconfirmed/new")
-    Call<StatusForSignUp> postStatusForSignUp(String json);
+    Call<StatusForSignUp> postStatusForSignUp(@Body SignUp signUp);
 }

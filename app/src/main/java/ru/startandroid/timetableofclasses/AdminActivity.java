@@ -126,36 +126,15 @@ public class AdminActivity extends AppCompatActivity implements SwipeRefreshLayo
         res2 += "}}";
 
 
-        App.getApi().putAnswer(res2).enqueue(new Callback<AnswerForAdmin>() {
+        String ansForAdmin = App.getNetworkManager().putAnswer(res2);
 
-            @Override
-            public void onResponse(Call<AnswerForAdmin> call, Response<AnswerForAdmin> response) {
-                AnswerForAdmin answerForAdmin = response.body();
-                Toast.makeText(AdminActivity.this, answerForAdmin.getMore(), Toast.LENGTH_LONG).show();
-            }
+        Toast.makeText(this, ansForAdmin, Toast.LENGTH_LONG).show();
 
-            @Override
-            public void onFailure(Call<AnswerForAdmin> call, Throwable t) {
-                Toast.makeText(AdminActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private void updateRequests(String jKey){
 
-        App.getApi().getUnconfirmed(jKey).enqueue(new Callback<RequestsForAdmin>() {
-
-            @Override
-            public void onResponse(Call<RequestsForAdmin> call, Response<RequestsForAdmin> response) {
-                RequestsForAdmin requestsForAdmin = response.body();
-                requests = requestsForAdmin.getRequests();
-            }
-
-            @Override
-            public void onFailure(Call<RequestsForAdmin> call, Throwable t) {
-                Toast.makeText(AdminActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
-            }
-        });
+        requests = App.getNetworkManager().getUnconfirmed(jKey);
 
     }
 }

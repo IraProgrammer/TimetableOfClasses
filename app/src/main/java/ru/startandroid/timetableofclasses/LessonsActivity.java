@@ -28,7 +28,6 @@ import ru.startandroid.timetableofclasses.ForGSON.TeachersList;
 import static ru.startandroid.timetableofclasses.DateActivity.day;
 import static ru.startandroid.timetableofclasses.GuestActivity.nameL;
 import static ru.startandroid.timetableofclasses.MyCalendar.dayName;
-import static ru.startandroid.timetableofclasses.SignUpActivity.url;
 
 public class LessonsActivity extends Activity {
 
@@ -47,22 +46,10 @@ public class LessonsActivity extends Activity {
         NameForLessons name = new NameForLessons(key);
         String jKey = g.toJson(name);
 
-        App.getApi().getLessons(jKey).enqueue(new Callback<Lessons>() {
+        List<Lesson> lessonsList = App.getNetworkManager().getLessons(jKey);
 
-            @Override
-            public void onResponse(Call<Lessons> call, Response<Lessons> response) {
-                Lessons lessons = response.body();
-                List<Lesson> lessonsList = lessons.getLessons();
+        setTime(new Lesson(), lessonsList);
 
-                setTime(new Lesson(), lessonsList);
-
-            }
-
-            @Override
-            public void onFailure(Call<Lessons> call, Throwable t) {
-                Toast.makeText(LessonsActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
 

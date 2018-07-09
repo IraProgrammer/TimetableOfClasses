@@ -7,21 +7,16 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class App extends Application {
 
-    private static TimetableApi timetableApi;
-    private Retrofit retrofit;
+    private static NetworkManager networkManager;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        retrofit = new Retrofit.Builder()
-                .baseUrl("https://abd977d7.ngrok.io") //Базовая часть адреса
-                .addConverterFactory(GsonConverterFactory.create()) //Конвертер, необходимый для преобразования JSON'а в объекты
-                .build();
-        timetableApi = retrofit.create(TimetableApi.class); //Создаем объект, при помощи которого будем выполнять запросы
+        networkManager = new NetworkManager();
     }
 
-    public static TimetableApi getApi() {
-        return timetableApi;
+    public static NetworkManager getNetworkManager() {
+        return networkManager;
     }
 }

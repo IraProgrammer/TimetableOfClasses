@@ -111,21 +111,10 @@ public class RegistrationActivity extends Activity implements TextWatcher {
     public void onClickSignIn(View v) {
 
         SignIn signin = new SignIn(login.getText().toString(), password.getText().toString());
-        String json = new Gson().toJson(signin);
 
-        App.getApi().putStatus(json).enqueue(new Callback<Status>() {
+        Status status = App.getNetworkManager().putStatus(signin);
 
-            @Override
-            public void onResponse(Call<Status> call, Response<Status> response) {
-                Status status = response.body();
-                startLessonsActivity(status);
-            }
-
-            @Override
-            public void onFailure(Call<Status> call, Throwable t) {
-                Toast.makeText(RegistrationActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
-            }
-        });
+        startLessonsActivity(status);
     }
 
     private void startLessonsActivity(Status status){
