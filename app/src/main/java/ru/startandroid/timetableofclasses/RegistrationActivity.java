@@ -20,13 +20,16 @@ import java.util.*;
 
 import com.google.gson.Gson;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import ru.startandroid.timetableofclasses.ForGSON.AnswerForAdmin;
 import ru.startandroid.timetableofclasses.ForGSON.Error;
 import ru.startandroid.timetableofclasses.ForGSON.SignIn;
 import ru.startandroid.timetableofclasses.ForGSON.Status;
 
 import static ru.startandroid.timetableofclasses.GuestActivity.nameL;
 import static ru.startandroid.timetableofclasses.DateActivity.day;
-import static ru.startandroid.timetableofclasses.SignUpActivity.url;
 
 public class RegistrationActivity extends Activity implements TextWatcher {
 
@@ -110,44 +113,37 @@ public class RegistrationActivity extends Activity implements TextWatcher {
         SignIn signin = new SignIn(login.getText().toString(), password.getText().toString());
         String json = new Gson().toJson(signin);
 
-        JsonPutOrPost jPUT = new JsonPutOrPost(url + "login/", "PUT", json);
-        jPUT.execute();
-        String result = "";
-        try {
+        App.getApi().putStatus(json).enqueue(new Callback<Status>() {
 
-            result = jPUT.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+            @Override
+            public void onResponse(Call<Status> call, Response<Status> response) {
+                Status status = response.body();
+                startLessonsActivity(status);
+            }
 
-        try {
+            @Override
+            public void onFailure(Call<Status> call, Throwable t) {
+                Toast.makeText(RegistrationActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
-        Gson gson = new Gson();
-        Status status = gson.fromJson(result, Status.class);
+    private void startLessonsActivity(Status status){
         token = status.getToken();
         String s = status.getStatus();
 
-            if (s.length() != 13) {
-                Intent intent1 = new Intent(this, AdminActivity.class);
-                startActivity(intent1);
-            } else if (s.length() == 13) {
-                nameL = status.getName();
-                Calendar c = Calendar.getInstance();
-                int year = c.get(c.YEAR);
-                int month = c.get(c.MONTH);
-                int days = c.get(c.DAY_OF_MONTH);
-                day = new MyCalendar().getDay(year, month, days);
-                Intent intent = new Intent(this, LessonsActivity.class);
-                startActivity(intent);
-            }
+        if (s.length() != 13) {
+            Intent intent1 = new Intent(this, AdminActivity.class);
+            startActivity(intent1);
+        } else if (s.length() == 13) {
+            nameL = status.getName();
+            Calendar c = Calendar.getInstance();
+            int year = c.get(c.YEAR);
+            int month = c.get(c.MONTH);
+            int days = c.get(c.DAY_OF_MONTH);
+            day = new MyCalendar().getDay(year, month, days);
+            Intent intent = new Intent(this, LessonsActivity.class);
+            startActivity(intent);
         }
-        catch (Exception e) {
-            Gson gson = new Gson();
-            Error error = gson.fromJson(result, Error.class);
-            Toast.makeText(this, error.getMore().toString(), Toast.LENGTH_LONG).show();
-       }
-
     }
 }

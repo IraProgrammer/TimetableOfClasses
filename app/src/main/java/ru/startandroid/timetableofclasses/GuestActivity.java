@@ -8,11 +8,16 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
 import java.util.concurrent.ExecutionException;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import ru.startandroid.timetableofclasses.ForGSON.RequestsForAdmin;
 import ru.startandroid.timetableofclasses.ForGSON.TeachersList;
 
 import static ru.startandroid.timetableofclasses.SignUpActivity.url;
@@ -28,21 +33,19 @@ public class GuestActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_guest);
 
-        JsonGet jGET = new JsonGet(url + "accounts/teachers/");
-        jGET.execute();
-        String result = "";
-        try {
+        App.getApi().getTeachers().enqueue(new Callback<TeachersList>() {
 
-            result = jGET.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+            @Override
+            public void onResponse(Call<TeachersList> call, Response<TeachersList> response) {
+                TeachersList tl = response.body();
+                names = tl.getTeachers();
+            }
 
-        Gson gson = new Gson();
-        TeachersList tl = gson.fromJson(result, TeachersList.class);
-        names = tl.getTeachers();
+            @Override
+            public void onFailure(Call<TeachersList> call, Throwable t) {
+                Toast.makeText(GuestActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         intentL = new Intent(this, DateActivity.class);
 

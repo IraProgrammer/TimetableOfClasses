@@ -3,6 +3,7 @@ package ru.startandroid.timetableofclasses;
 import android.app.Activity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.os.Handler;
@@ -11,19 +12,23 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import ru.startandroid.timetableofclasses.ForGSON.Answer;
 import ru.startandroid.timetableofclasses.ForGSON.AnswerForAdmin;
 import ru.startandroid.timetableofclasses.ForGSON.Request;
 import ru.startandroid.timetableofclasses.ForGSON.RequestsForAdmin;
 import ru.startandroid.timetableofclasses.ForGSON.Token;
 
 import static ru.startandroid.timetableofclasses.RegistrationActivity.token;
-import static ru.startandroid.timetableofclasses.SignUpActivity.url;
 
-public class AdminActivity extends Activity implements SwipeRefreshLayout.OnRefreshListener {
+public class AdminActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     ArrayList<AdminListItem> products = new ArrayList<AdminListItem>();
     Adapter boxAdapter;
@@ -50,23 +55,7 @@ public class AdminActivity extends Activity implements SwipeRefreshLayout.OnRefr
         Token token = new Token(key);
         jKey = g.toJson(token);
 
-        JsonGet jGET = new JsonGet(url + "accounts/unconfirmed/?q=" + jKey);
-        jGET.execute();
-
-        String result = "";
-
-        try {
-
-            result = jGET.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        Gson gson = new Gson();
-        RequestsForAdmin requestsForAdmin = gson.fromJson(result, RequestsForAdmin.class);
-        requests = requestsForAdmin.getRequests();
+        updateRequests(jKey);
 
         // создаем адаптер
         fillData();
@@ -89,23 +78,7 @@ public class AdminActivity extends Activity implements SwipeRefreshLayout.OnRefr
 
         products.clear();
 
-        JsonGet jGET = new JsonGet(url + "accounts/unconfirmed/?q=" + jKey);
-        jGET.execute();
-
-        String result = "";
-
-        try {
-
-            result = jGET.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        Gson gson = new Gson();
-        RequestsForAdmin requestsForAdmin = gson.fromJson(result, RequestsForAdmin.class);
-        requests = requestsForAdmin.getRequests();
+        updateRequests(jKey);
 
         // создаем адаптер
         fillData();
@@ -153,20 +126,37 @@ public class AdminActivity extends Activity implements SwipeRefreshLayout.OnRefr
         String res2 = res.substring(0, res.length()-1);
         res2 += "}}";
 
-        JsonPutOrPost jPUT = new JsonPutOrPost(url + "accounts/uniconfirmed/confirm/", "PUT", res2);
-        jPUT.execute();
-        String result = "";
-        try {
 
-            result = jPUT.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-    Gson gson = new Gson();
-    AnswerForAdmin answerForAdmin = gson.fromJson(result, AnswerForAdmin.class);
-    String s = answerForAdmin.getMore();
-    Toast.makeText(this, s, Toast.LENGTH_LONG).show();
+        App.getApi().putAnswer(res2).enqueue(new Callback<AnswerForAdmin>() {
+
+            @Override
+            public void onResponse(Call<AnswerForAdmin> call, Response<AnswerForAdmin> response) {
+                AnswerForAdmin answerForAdmin = response.body();
+                Toast.makeText(AdminActivity.this, answerForAdmin.getMore(), Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onFailure(Call<AnswerForAdmin> call, Throwable t) {
+                Toast.makeText(AdminActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void updateRequests(String jKey){
+
+        App.getApi().getUnconfirmed(jKey).enqueue(new Callback<RequestsForAdmin>() {
+
+            @Override
+            public void onResponse(Call<RequestsForAdmin> call, Response<RequestsForAdmin> response) {
+                RequestsForAdmin requestsForAdmin = response.body();
+                requests = requestsForAdmin.getRequests();
+            }
+
+            @Override
+            public void onFailure(Call<RequestsForAdmin> call, Throwable t) {
+                Toast.makeText(AdminActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 }

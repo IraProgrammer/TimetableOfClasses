@@ -1,6 +1,13 @@
 <resources>
     <string name="app_name">"TimetableOfClasses "</string>
     <string name="title_activity_guest">GuestActivity</string>
+
+    <string name="error">An error occurred during networking</string>
+
+    <string name="difPass">Пароли не совпадают</string>
+
+    <string name="minPass">Пароль должен содержать не менее 8 символов</string>
+
     <string name="large_text">
 
         "Material is the metaphor.\n\n"

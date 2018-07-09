@@ -14,14 +14,16 @@ import com.google.gson.Gson;
 
 import java.util.concurrent.ExecutionException;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import ru.startandroid.timetableofclasses.ForGSON.SignUp;
+import ru.startandroid.timetableofclasses.ForGSON.Status;
 import ru.startandroid.timetableofclasses.ForGSON.StatusForSignUp;
 
 import static android.R.attr.name;
 
 public class SignUpActivity extends Activity implements TextWatcher{
-
-    public static String url = "https://abd977d7.ngrok.io/";
 
     EditText name;
     EditText login;
@@ -84,11 +86,11 @@ public class SignUpActivity extends Activity implements TextWatcher{
     }
 
         if (!password.getText().toString().equals(passagain.getText().toString())) {
-            Toast.makeText(this, "Пароли не совпадают", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.difPass, Toast.LENGTH_LONG).show();
         }
 
         else if (password.getText().length() < 8) {
-           Toast.makeText(this, "Пароль должен содержать не менее 8 символов", Toast.LENGTH_LONG).show();
+           Toast.makeText(this, R.string.minPass, Toast.LENGTH_LONG).show();
        }
 
        else {
@@ -97,24 +99,20 @@ public class SignUpActivity extends Activity implements TextWatcher{
                     name.getText().toString(), login.getText().toString(), password.getText().toString());
             String json = new Gson().toJson(signup);
 
-            JsonPutOrPost jPOST = new JsonPutOrPost(url + "accounts/unconfirmed/new/", "POST", json);
-            jPOST.execute();
-            String result = "";
-            try {
 
-                result = jPOST.get();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
+            App.getApi().postStatusForSignUp(json).enqueue(new Callback<StatusForSignUp>() {
 
-            Gson gson = new Gson();
-            StatusForSignUp statusForSignUp = gson.fromJson(result, StatusForSignUp.class);
-            Toast.makeText(this, statusForSignUp.getMore(), Toast.LENGTH_LONG).show();
+                @Override
+                public void onResponse(Call<StatusForSignUp> call, Response<StatusForSignUp> response) {
+                    StatusForSignUp statusForSignUp = response.body();
+                    Toast.makeText(SignUpActivity.this, statusForSignUp.getMore(), Toast.LENGTH_LONG).show();
+                }
 
-
-
+                @Override
+                public void onFailure(Call<StatusForSignUp> call, Throwable t) {
+                    Toast.makeText(SignUpActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 }

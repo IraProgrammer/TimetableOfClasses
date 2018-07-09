@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -16,9 +17,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import ru.startandroid.timetableofclasses.ForGSON.Lesson;
 import ru.startandroid.timetableofclasses.ForGSON.Lessons;
 import ru.startandroid.timetableofclasses.ForGSON.NameForLessons;
+import ru.startandroid.timetableofclasses.ForGSON.TeachersList;
 
 import static ru.startandroid.timetableofclasses.DateActivity.day;
 import static ru.startandroid.timetableofclasses.GuestActivity.nameL;
@@ -42,25 +47,26 @@ public class LessonsActivity extends Activity {
         NameForLessons name = new NameForLessons(key);
         String jKey = g.toJson(name);
 
-        JsonGet jGET = new JsonGet(url + "lessons/?q=" + jKey);
-        jGET.execute();
+        App.getApi().getLessons(jKey).enqueue(new Callback<Lessons>() {
 
-        String result = "";
+            @Override
+            public void onResponse(Call<Lessons> call, Response<Lessons> response) {
+                Lessons lessons = response.body();
+                List<Lesson> lessonsList = lessons.getLessons();
 
-        try {
+                setTime(new Lesson(), lessonsList);
 
-            result = jGET.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+            }
 
-        Gson gson = new Gson();
-        Lessons less = gson.fromJson(result, Lessons.class);
-        List<Lesson> lessons = less.getLessons();
-        Lesson lesson;
+            @Override
+            public void onFailure(Call<Lessons> call, Throwable t) {
+                Toast.makeText(LessonsActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
+
+    public void setTime(Lesson lesson, List<Lesson> lessons){
         String time = null;
 
         Map forTime = new HashMap<Integer, String>();
@@ -75,12 +81,13 @@ public class LessonsActivity extends Activity {
         for (int i = 0; i < lessons.size(); i++) {
             lesson = lessons.get(i);
 
-                time = forTime.get(lesson.getNumber()).toString();
+            time = forTime.get(lesson.getNumber()).toString();
 
             if(lesson.getDay() == day) {
-            addRow(time, lesson.getName() + "\n" + lesson.getType(), lesson.getClass_(), lesson.getGroups());
-        }}
+                addRow(time, lesson.getName() + "\n" + lesson.getType(), lesson.getClass_(), lesson.getGroups());
+            }}
     }
+
     public void onClickChoose(View v){
         Intent intent = new Intent(this, DateActivity.class);
         startActivity(intent);
