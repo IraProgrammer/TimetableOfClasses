@@ -36,7 +36,6 @@ public class AdminActivity extends AppCompatActivity implements SwipeRefreshLayo
     SwipeRefreshLayout mSwipeRefresh;
     String jKey;
 
-
     /** Called when the activity is first created. */
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
