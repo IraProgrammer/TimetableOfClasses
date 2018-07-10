@@ -22,6 +22,11 @@ public interface TimetableApi {
     Call<RequestsForAdmin> getUnconfirmed(@Query("q") String key);
 
     @PUT("/accounts/uniconfirmed/confirm")
+    //TODO для того, что бы отправлять "сырой" json как строку нужно
+    // добавить зависимость compile 'com.squareup.retrofit2:converter-scalars:2.1.0'
+    // добавить .addConverterFactory(ScalarsConverterFactory.create()) к билдеру ретрофита
+    // поставить @Body перед String res
+    // но лучше, конечно же, создать модель, например, как SignUp
     Call<AnswerForAdmin> putAnswer(String res);
 
     @GET("/accounts/teachers")

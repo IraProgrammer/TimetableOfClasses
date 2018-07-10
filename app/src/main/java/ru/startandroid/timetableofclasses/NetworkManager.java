@@ -22,6 +22,9 @@ import ru.startandroid.timetableofclasses.ForGSON.Status;
 import ru.startandroid.timetableofclasses.ForGSON.StatusForSignUp;
 import ru.startandroid.timetableofclasses.ForGSON.TeachersList;
 
+//TODO нужно сделать этот класс полноценным синглтном с lazy инициализацией
+// это когда объект будет создаваться в момент первого вызова
+// после создания вызывать метод init
 public class NetworkManager {
 
     private TimetableApi timetableApi;
@@ -39,11 +42,16 @@ public class NetworkManager {
 
     private String statusForSignUpStr;
 
+    //TODO в onCreate в App не вызывается
     public void init(){
         retrofit = new Retrofit.Builder()
+                //TODO строку со ссылкой лучше вынести в константу в этом же классе
+                // public static final String BASE_URL = "https://abd977d7.ngrok.io"
                 .baseUrl("https://abd977d7.ngrok.io") //Базовая часть адреса
                 .addConverterFactory(GsonConverterFactory.create()) //Конвертер, необходимый для преобразования JSON'а в объекты
                 .build();
+        //TODO т.к. объект ретрофита нигде не используется, можно после build() добавить create(TimetableApi.class)
+        // и создавать сразу TimetableApi
         timetableApi = retrofit.create(TimetableApi.class);
     }
 
@@ -77,6 +85,9 @@ public class NetworkManager {
 
             @Override
             public void onFailure(Call<AnswerForAdmin> call, Throwable t) {
+                // TODO со строковывми ресурсами так не получится сделать, R.string.error - это id ресурса
+                // в данном случае у тебя преобразуется в строку id
+                // строковые ресурсы достаются через Context (как и любые другие ресурсы)
                 answerForAdminStr = String.valueOf(R.string.error);
             }
         });
@@ -149,6 +160,7 @@ public class NetworkManager {
 
             @Override
             public void onFailure(Call<StatusForSignUp> call, Throwable t) {
+                //TODO писал вышел про id ресурса
                 statusForSignUpStr = String.valueOf(R.string.error);
             }
         });
