@@ -46,7 +46,7 @@ public class LessonsActivity extends Activity {
         NameForLessons name = new NameForLessons(key);
         String jKey = g.toJson(name);
 
-        List<Lesson> lessonsList = App.getNetworkManager().getLessons(jKey);
+        List<Lesson> lessonsList = NetworkManager.getInstance(this).getLessons(jKey);
 
         setTime(new Lesson(), lessonsList);
 

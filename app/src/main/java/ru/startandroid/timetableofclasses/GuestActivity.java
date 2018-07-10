@@ -31,7 +31,7 @@ public class GuestActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_guest);
 
-        names = App.getNetworkManager().getTeachers();
+        names = NetworkManager.getInstance(this).getTeachers();
 
         intentL = new Intent(this, DateActivity.class);
 

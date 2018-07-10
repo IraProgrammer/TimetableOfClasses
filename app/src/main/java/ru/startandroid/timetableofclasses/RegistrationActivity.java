@@ -112,7 +112,7 @@ public class RegistrationActivity extends Activity implements TextWatcher {
 
         SignIn signin = new SignIn(login.getText().toString(), password.getText().toString());
 
-        Status status = App.getNetworkManager().putStatus(signin);
+        Status status = NetworkManager.getInstance(this).putStatus(signin);
 
         startLessonsActivity(status);
     }

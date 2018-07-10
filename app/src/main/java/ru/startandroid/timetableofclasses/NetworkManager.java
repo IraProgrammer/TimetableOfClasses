@@ -1,5 +1,7 @@
 package ru.startandroid.timetableofclasses;
 
+import android.app.Application;
+import android.content.Context;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -10,6 +12,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 import ru.startandroid.timetableofclasses.ForGSON.Answer;
 import ru.startandroid.timetableofclasses.ForGSON.AnswerForAdmin;
 import ru.startandroid.timetableofclasses.ForGSON.Lesson;
@@ -22,13 +25,17 @@ import ru.startandroid.timetableofclasses.ForGSON.Status;
 import ru.startandroid.timetableofclasses.ForGSON.StatusForSignUp;
 import ru.startandroid.timetableofclasses.ForGSON.TeachersList;
 
-//TODO нужно сделать этот класс полноценным синглтном с lazy инициализацией
+// нужно сделать этот класс полноценным синглтном с lazy инициализацией
 // это когда объект будет создаваться в момент первого вызова
 // после создания вызывать метод init
 public class NetworkManager {
 
-    private TimetableApi timetableApi;
+    private static NetworkManager networkManager;
+
+    private static TimetableApi timetableApi;
     private Retrofit retrofit;
+
+    private static final String BASE_URL = "https://abd977d7.ngrok.io";
 
     private List<Request> requests = new ArrayList<>();
 
@@ -42,20 +49,33 @@ public class NetworkManager {
 
     private String statusForSignUpStr;
 
-    //TODO в onCreate в App не вызывается
-    public void init(){
-        retrofit = new Retrofit.Builder()
-                //TODO строку со ссылкой лучше вынести в константу в этом же классе
-                // public static final String BASE_URL = "https://abd977d7.ngrok.io"
-                .baseUrl("https://abd977d7.ngrok.io") //Базовая часть адреса
-                .addConverterFactory(GsonConverterFactory.create()) //Конвертер, необходимый для преобразования JSON'а в объекты
-                .build();
-        //TODO т.к. объект ретрофита нигде не используется, можно после build() добавить create(TimetableApi.class)
-        // и создавать сразу TimetableApi
-        timetableApi = retrofit.create(TimetableApi.class);
+    private Context context;
+
+    private NetworkManager(Context context) {
+        this.context = context;
     }
 
-    public List<Request> getUnconfirmed(String jKey){
+    public static NetworkManager getInstance(Context context) {
+
+        if (networkManager == null) {
+            networkManager = new NetworkManager(context);
+            init();
+        }
+
+        return networkManager;
+    }
+
+    private static void init() {
+        timetableApi = new Retrofit.Builder()
+                .baseUrl(BASE_URL) //Базовая часть адреса
+                .addConverterFactory(GsonConverterFactory.create()) //Конвертер, необходимый для преобразования JSON'а в объекты
+                .addConverterFactory(ScalarsConverterFactory.create())
+                .build()
+                .create(TimetableApi.class);
+        // и создавать сразу TimetableApi
+    }
+
+    public List<Request> getUnconfirmed(String jKey) {
 
         timetableApi.getUnconfirmed(jKey).enqueue(new Callback<RequestsForAdmin>() {
 
@@ -73,7 +93,7 @@ public class NetworkManager {
         return requests;
     }
 
-    public String putAnswer(String res){
+    public String putAnswer(String res) {
 
         timetableApi.putAnswer(res).enqueue(new Callback<AnswerForAdmin>() {
 
@@ -85,17 +105,17 @@ public class NetworkManager {
 
             @Override
             public void onFailure(Call<AnswerForAdmin> call, Throwable t) {
-                // TODO со строковывми ресурсами так не получится сделать, R.string.error - это id ресурса
+                //  со строковывми ресурсами так не получится сделать, R.string.error - это id ресурса
                 // в данном случае у тебя преобразуется в строку id
                 // строковые ресурсы достаются через Context (как и любые другие ресурсы)
-                answerForAdminStr = String.valueOf(R.string.error);
+                answerForAdminStr = context.getString(R.string.error);
             }
         });
 
         return answerForAdminStr;
     }
 
-    public Status putStatus(SignIn signIn){
+    public Status putStatus(SignIn signIn) {
 
         timetableApi.putStatus(signIn).enqueue(new Callback<Status>() {
 
@@ -112,7 +132,7 @@ public class NetworkManager {
         return status;
     }
 
-    public List<Lesson> getLessons(String jKey){
+    public List<Lesson> getLessons(String jKey) {
 
         timetableApi.getLessons(jKey).enqueue(new Callback<Lessons>() {
 
@@ -130,7 +150,7 @@ public class NetworkManager {
         return lessonsList;
     }
 
-    public String[] getTeachers(){
+    public String[] getTeachers() {
 
         timetableApi.getTeachers().enqueue(new Callback<TeachersList>() {
 
@@ -148,7 +168,7 @@ public class NetworkManager {
         return names;
     }
 
-    public String postStatusForSignUp(final SignUp signUp){
+    public String postStatusForSignUp(final SignUp signUp) {
 
         timetableApi.postStatusForSignUp(signUp).enqueue(new Callback<StatusForSignUp>() {
 
@@ -160,8 +180,8 @@ public class NetworkManager {
 
             @Override
             public void onFailure(Call<StatusForSignUp> call, Throwable t) {
-                //TODO писал вышел про id ресурса
-                statusForSignUpStr = String.valueOf(R.string.error);
+                //писал вышел про id ресурса
+                statusForSignUpStr = context.getString(R.string.error);
             }
         });
 

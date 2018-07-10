@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/TimetableOfClasses.iml" filepath="$PROJECT_DIR$/TimetableOfClasses.iml" />
       <module fileurl="file://$PROJECT_DIR$/TimetableOfClassesRETROFIT.iml" filepath="$PROJECT_DIR$/TimetableOfClassesRETROFIT.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TimetableOfClassesRev.iml" filepath="$PROJECT_DIR$/TimetableOfClassesRev.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
